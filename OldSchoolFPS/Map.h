@@ -8,8 +8,7 @@ public:
 	Map(int MapWidth, int MapHeight, int ScreenWidth, int ScreenHeight);
 	void UpdateMap(Player& player);
 	void DrawMap(sf::RenderWindow& window);
-
-
+	bool HitWall(Player& player);
 private:
 	
 	int MapWidth;
@@ -21,9 +20,12 @@ private:
 	std::wstring map;
 	sf::Texture texture;
 	sf::Sprite sprite;
+	sf::Texture guntexture;
+	sf::Sprite gunsprite;
 
 	void ComputePlayerRayCast(PlayerParams& player);
 	
-	static constexpr float MaxDepth = 16;
+	
+	float MaxDepth;
 	
 };

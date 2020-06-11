@@ -1,7 +1,8 @@
 #pragma once
-#pragma once
 #include <SFML\Graphics.hpp>
 #include <string>
+#include "Map.h"
+#include "Player.h"
 
 class Game {			//game class. should have render, update/events, quit and initialize.
 
@@ -25,10 +26,11 @@ private:
 	bool MainMenu = true;
 
 	int FrameCounter = 0;						//frame counter
-
+	Map map;
+	Player player;
 
 	sf::Event event;					//events class
-	sf::RenderWindow createwindow;		//windows class
+	sf::RenderWindow window;		//windows class
 	bool GameOver = false;				//gameover boolean
 
 
