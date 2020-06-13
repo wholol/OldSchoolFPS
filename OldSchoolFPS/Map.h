@@ -5,14 +5,14 @@
 class Map
 {
 public:
-	Map(int MapWidth, int MapHeight, int ScreenWidth, int ScreenHeight);
+	Map(int ScreenWidth, int ScreenHeight);
 	void UpdateMap(Player& player);
 	void DrawMap(sf::RenderWindow& window);
 	bool HitWall(Player& player);
 private:
 	
-	int MapWidth;
-	int MapHeight;
+	int MapWidth = 0;
+	int MapHeight = 0;
 	int ScreenWidth, ScreenHeight;
 	int CeilingStart = 0;
 	int FloorStart = 0;

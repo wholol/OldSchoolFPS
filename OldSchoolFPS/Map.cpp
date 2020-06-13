@@ -1,47 +1,42 @@
 #include "Map.h"
-
-Map::Map(int MapWidth, int MapHeight, int ScreenWidth, int ScreenHeight)
-	:MapWidth(MapWidth),MapHeight(MapHeight),ScreenWidth(ScreenWidth), ScreenHeight(ScreenHeight)
+#include <fstream>
+Map::Map(int ScreenWidth, int ScreenHeight)
+	:ScreenWidth(ScreenWidth), ScreenHeight(ScreenHeight)
 {
 	image.create(ScreenWidth, ScreenHeight, sf::Color::Black);
 	texture.loadFromImage(image);
 	sprite.setTexture(texture);
 	
-	guntexture.loadFromFile("gun.png");
+	if (!guntexture.loadFromFile("gun.png")) {
+		throw std::runtime_error("gun image loading failed.");
+	}
+
 	gunsprite.setTexture(guntexture);
 	gunsprite.setPosition(sf::Vector2f((ScreenWidth - 57)/2, (ScreenHeight - 72)));
 	
-	wallimage.loadFromFile("bricks.png");
+	if (!wallimage.loadFromFile("bricks.png"))
+	{
+		throw std::runtime_error("wall image loading failed.");
+	}
+
 	wallimagewidth = wallimage.getSize().x;
 	wallimageheight = wallimage.getSize().y;
+	std::wifstream loadmap("map.txt");
 
-	map += L"###########################";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#......####...............#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#..................########";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.............####........#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#...####..................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"#.........................#";
-	map += L"###########################";
+	if (!loadmap)
+	{ 
+		throw std::runtime_error("map loading failed.");
+	}
+
+	else {
+		std::wstring readmap;
+		while (std::getline(loadmap, readmap)) {
+			map += readmap;
+			MapHeight += 1;
+			MapWidth = readmap.length();
+			readmap.clear();
+		}
+	}
 
 	MaxDepth = std::max(MapHeight, MapWidth);
 }						
@@ -146,10 +141,12 @@ void Map::ComputePlayerRayCast(PlayerParams& p)
 				{
 					image.setPixel(x, y, sf::Color(0, 200, 0));
 				}
+
 				else if (Ratio < 0.75)
 				{
 					image.setPixel(x, y, sf::Color(0, 169, 0));
 				}
+
 				else {
 					image.setPixel(x, y, sf::Color(0, 109, 0));
 				}

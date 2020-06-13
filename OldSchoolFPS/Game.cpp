@@ -2,7 +2,7 @@
 
 Game::Game(int screenwidth, int screenheight, const std::string& title, int framerate)
 	:window(sf::VideoMode(screenwidth, screenheight), title)
-	,map(27,27,screenwidth,screenheight)
+	,map(screenwidth,screenheight)
 	,player(screenwidth, screenheight, 45,  8,7, 0)
 
 {
