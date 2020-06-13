@@ -10,7 +10,6 @@ Player::Player(int ScreenWidth, int ScreenHeight, float FOVDegrees, int player_p
 	playerparams.FOVRad = FOVDegrees * Deg2Rad;
 	playerparams.ViewDirection = ViewDirection;
 	playerparams.DistanceToWall = 0.0f;
-	
 }
 
 PlayerParams Player::GetPlayerParams() const

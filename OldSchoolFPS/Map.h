@@ -16,16 +16,25 @@ private:
 	int ScreenWidth, ScreenHeight;
 	int CeilingStart = 0;
 	int FloorStart = 0;
+	float SampleWallTextureX = 0.0f;
+	float SampleWallTextureY = 0.0f;
+	unsigned int wallimagewidth, wallimageheight;
+	float MaxDepth;
+
 	sf::Image image;
 	std::wstring map;
+	
 	sf::Texture texture;
 	sf::Sprite sprite;
+	
 	sf::Texture guntexture;
 	sf::Sprite gunsprite;
+
+	sf::Image wallimage;
 
 	void ComputePlayerRayCast(PlayerParams& player);
 	
 	
-	float MaxDepth;
+	
 	
 };
