@@ -3,6 +3,7 @@
 #include <string>
 #include "Map.h"
 #include "Player.h"
+#include "Enemy.h"
 
 class Game {			//game class. should have render, update/events, quit and initialize.
 
@@ -28,6 +29,7 @@ private:
 	int FrameCounter = 0;						//frame counter
 	Map map;
 	Player player;
+	Enemy enemy;
 
 	sf::Event event;					//events class
 	sf::RenderWindow window;		//windows class

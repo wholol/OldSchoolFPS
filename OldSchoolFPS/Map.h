@@ -1,14 +1,19 @@
 #include <string>
 #include "Player.h"
 #include <SFML\Graphics.hpp>
+#include "Enemy.h"
 
 class Map
 {
 public:
 	Map(int ScreenWidth, int ScreenHeight);
-	void UpdateMap(Player& player);
+	void UpdateMap(Player& player, Enemy& enemy);
 	void DrawMap(sf::RenderWindow& window);
 	bool HitWall(Player& player);
+	std::wstring GetMap() const;
+	int GetMapWidth() const;
+	int GetMapHeight() const;
+
 private:
 	
 	int MapWidth = 0;
@@ -18,6 +23,9 @@ private:
 	int FloorStart = 0;
 	float SampleWallTextureX = 0.0f;
 	float SampleWallTextureY = 0.0f;
+	float SampleEnemyTextureX = 0.0f;
+	float SampleEnemyTextureY = 0.0f;
+	std::vector<float> ZBuffer;
 	unsigned int wallimagewidth, wallimageheight;
 	float MaxDepth;
 
@@ -32,9 +40,6 @@ private:
 
 	sf::Image wallimage;
 
-	void ComputePlayerRayCast(PlayerParams& player);
-	
-	
-	
-	
+	void DrawBackGround(PlayerParams& p);
+	void DrawEnemies(std::vector<EnemyParams>& e, PlayerParams& p);
 };

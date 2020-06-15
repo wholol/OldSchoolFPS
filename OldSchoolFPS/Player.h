@@ -12,17 +12,16 @@ struct PlayerParams
 class Player
 {
 public:
-	Player(int ScreenWidth, int ScreenHeight,float FOVDegrees,int player_posx,int player_posy,float ViewDirection);
+	Player(int ScreenWidth, int ScreenHeight,float FOVDegrees,int player_posx,int player_posy,float ViewDirection,const class Map& map);
 	PlayerParams GetPlayerParams() const;
 	void MoveForward();
 	void MoveBackward();
 	void RotateLeft();
 	void RotateRight();
 	
-
 private:
 	PlayerParams playerparams;
-	static constexpr double Deg2Rad = 3.14159265358979323846f / 180.0f;
+	static constexpr double Deg2Rad = 3.14159f / 180.0f;
 	int ScreenHeight, ScreenWidth;
-
+	const Map& map;
 };

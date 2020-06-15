@@ -3,6 +3,12 @@
 Map::Map(int ScreenWidth, int ScreenHeight)
 	:ScreenWidth(ScreenWidth), ScreenHeight(ScreenHeight)
 {
+	
+	for (int i = 0; i < ScreenHeight * ScreenWidth; ++i)
+	{
+		ZBuffer.push_back(INFINITY);
+	}
+
 	image.create(ScreenWidth, ScreenHeight, sf::Color::Black);
 	texture.loadFromImage(image);
 	sprite.setTexture(texture);
@@ -42,10 +48,13 @@ Map::Map(int ScreenWidth, int ScreenHeight)
 }						
 
 
-void Map::UpdateMap(Player& player)
+void Map::UpdateMap(Player& player, Enemy& enemy)
 {
-	PlayerParams p = player.GetPlayerParams();
-	ComputePlayerRayCast(p);
+	PlayerParams p = player.GetPlayerParams();		//get palyer parameters
+	std::vector<EnemyParams> e = enemy.GetEnemies();	//get enemy parameters
+	DrawBackGround(p);
+	DrawEnemies(e,p);	
+
 	texture.update(image);
 }
 
@@ -55,15 +64,14 @@ void Map::DrawMap(sf::RenderWindow & window)
 	window.draw(gunsprite);
 }
 
-void Map::ComputePlayerRayCast(PlayerParams& p)
+void Map::DrawBackGround(PlayerParams& p)
 {
-
 	for (int x = 0; x < ScreenWidth; ++x)
 	{
 		//compute the agle of individual rays
-		float RayAngle = (p.ViewDirection - p.FOVRad / 2.0f) + ((float)x / (float)ScreenWidth) * p.FOVRad;
+		float RayAngle = (p.ViewDirection - p.FOVRad / 2.0f) + ((float)x / (float)ScreenWidth) * p.FOVRad;	
 
-		for (float i = 0; i < MaxDepth; i += 0.1f)			//trace the ray position at each angle
+		for (float i = 0; i < MaxDepth; i += 0.06f)			//trace the ray position at each angle
 		{
 			int ray_posx = p.player_posx + i * cosf(RayAngle);
 			int ray_posy = p.player_posy + i * sinf(RayAngle);
@@ -118,6 +126,8 @@ void Map::ComputePlayerRayCast(PlayerParams& p)
 
 		for (int y = 0; y < ScreenHeight; ++y)			//for each height
 		{
+			ZBuffer[x + ScreenWidth * y] = p.DistanceToWall;	//update buffer
+			
 			if (y <= CeilingStart)
 			{
 				image.setPixel(x, y, sf::Color::Black);
@@ -126,33 +136,69 @@ void Map::ComputePlayerRayCast(PlayerParams& p)
 			else if (y > CeilingStart && y <= FloorStart)
 			{
 				SampleWallTextureY = (float)(y - CeilingStart) / (float)(FloorStart - CeilingStart);
-				image.setPixel(x, y, wallimage.getPixel(SampleWallTextureX * (wallimagewidth - 1) , SampleWallTextureY * (wallimageheight - 1)));
+				image.setPixel(x, y, wallimage.getPixel((int)(SampleWallTextureX * (wallimagewidth - 1)), (int)(SampleWallTextureY * (wallimageheight - 1))));
 			}
 
 			else if (y > FloorStart){
-
-				float Ratio = (float)(y - (float)ScreenHeight * 0.5) / (float)(ScreenHeight * 0.5);
-				if (Ratio < 0.25)
-				{
-					image.setPixel(x, y, sf::Color(0, 255, 0));
-				}
-
-				else if (Ratio < 0.5)
-				{
-					image.setPixel(x, y, sf::Color(0, 200, 0));
-				}
-
-				else if (Ratio < 0.75)
-				{
-					image.setPixel(x, y, sf::Color(0, 169, 0));
-				}
-
-				else {
-					image.setPixel(x, y, sf::Color(0, 109, 0));
-				}
+				image.setPixel(x, y, sf::Color(0, 255, 0));
+				ZBuffer[x + ScreenWidth * y] = p.DistanceToWall;	
 			}
 		}
 	}
+}
+
+void Map::DrawEnemies(std::vector<EnemyParams>& e,PlayerParams& p)
+{
+	//sprite angle should be relative to the player
+	for (auto& enemy : e) {
+	
+
+		float SpriteDirection = atan2f((enemy.enemy_posy - p.player_posy), (enemy.enemy_posx - p.player_posx));		//angle of sprite
+		
+		while (SpriteDirection - p.ViewDirection < -3.14159f)
+		{
+			SpriteDirection += 2.0f * 3.14159;
+		}
+
+		while (SpriteDirection - p.ViewDirection > 3.14159f)
+		{
+			SpriteDirection -= 2.0f * 3.14159;
+		}
+
+		float dx = enemy.enemy_posx - p.player_posx;
+		float dy = enemy.enemy_posy - p.player_posy;
+		float DistanceFromPlayer = sqrt((dx * dx) + (dy * dy));
+
+		//draw sprite only if it is within FOV range and between -.4 and max distance
+		if (std::fabs(SpriteDirection - p.ViewDirection) < p.FOVRad * 0.5f && DistanceFromPlayer > 0.45f && DistanceFromPlayer < MaxDepth)
+		{
+			float EnemyHeightStart = (ScreenHeight * 0.5) - ScreenHeight / (DistanceFromPlayer * cosf(SpriteDirection - p.ViewDirection));
+			float EnemyFloor = ScreenHeight - EnemyHeightStart;
+			float EnemyHeight = EnemyFloor - EnemyHeightStart;
+			float EnemyWidth = EnemyHeight * (enemy.enemyimage.getSize().x / enemy.enemyimage.getSize().y);
+			float EnemyCenter = (0.5f * ((SpriteDirection - p.ViewDirection) / (p.FOVRad * 0.5)) + 0.5f) * (float)ScreenWidth;
+
+			for (int x = 0; x < EnemyWidth; ++x)
+			{
+				for (int y = 0; y < EnemyHeight; ++y)
+				{
+					SampleEnemyTextureX = ((float)x / EnemyWidth) * (float)enemy.enemyimage.getSize().x;
+					SampleEnemyTextureY = ((float)y / EnemyHeight) * (float)enemy.enemyimage.getSize().y;
+
+					if (x > 0 && x < ScreenWidth)
+					{
+						if (ZBuffer[(int)(EnemyCenter + x - (EnemyWidth / 2.0f)) + ScreenWidth * (y + EnemyHeightStart)] > DistanceFromPlayer)		
+						{
+							image.setPixel((int)(EnemyCenter + x - (EnemyWidth / 2.0f)), y + EnemyHeightStart, enemy.enemyimage.getPixel((unsigned int)SampleEnemyTextureX, (unsigned int)SampleEnemyTextureY));
+							ZBuffer[(int)(EnemyCenter + x - (EnemyWidth / 2.0f)) + ScreenWidth * (y + EnemyHeightStart)] = DistanceFromPlayer;
+						}
+					}
+				}
+			}
+		}
+
+	}
+	
 }
 
 bool Map::HitWall(Player& p)
@@ -163,5 +209,20 @@ bool Map::HitWall(Player& p)
 		return true;
 	}
 	return false;
+}
+
+std::wstring Map::GetMap() const
+{
+	return map;
+}
+
+int Map::GetMapWidth() const
+{
+	return MapWidth;
+}
+
+int Map::GetMapHeight() const
+{
+	return MapHeight;
 }
 

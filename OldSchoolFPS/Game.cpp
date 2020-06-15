@@ -3,10 +3,11 @@
 Game::Game(int screenwidth, int screenheight, const std::string& title, int framerate)
 	:window(sf::VideoMode(screenwidth, screenheight), title)
 	,map(screenwidth,screenheight)
-	,player(screenwidth, screenheight, 45,  8,7, 0)
-
+	,player(screenwidth, screenheight, 45,  8,7, 0,map),
+	enemy(map)
 {
-
+	enemy.addEnemy(4, 4);
+	enemy.addEnemy(20, 23);
 }
 
 
@@ -47,7 +48,7 @@ void Game::update() {		//update game
 	}
 
 
-	map.UpdateMap(player);
+	map.UpdateMap(player,enemy);
 	
 	window.clear();
 
