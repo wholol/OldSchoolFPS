@@ -1,28 +1,59 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <vector>
+#include "ImageManager.h"
+#include <unordered_set>
+#include <unordered_map>
+#include <optional>
+#include "Player.h"
 
-struct EnemyParams
+//parameter struct for an entity
+struct EntityParams
 {
-	EnemyParams(float enemy_posx, float enemy_posy, sf::Image& enemyimage)
-		:enemy_posx(enemy_posx) , enemy_posy(enemy_posy) , enemyimage(enemyimage){}
+	EntityParams(float entity_posx, float entity_posy, sf::Image& enemyimage, int health, bool stationary)
+		:entity_posx(entity_posx), entity_posy(entity_posy), enemyimage(enemyimage),health(health), stationary(stationary) {}
 
-	float enemy_posx, enemy_posy;			
+	EntityParams& operator=(const EntityParams& other)	//needed for std::remove_if
+	{
+		deleteEntitiy = other.deleteEntitiy;
+		entity_posx = other.entity_posx;
+		entity_posy = other.entity_posy;
+		stationary = other.stationary;
+		enemyimage = other.enemyimage;
+		health = other.health;
+		return *this;
+	}
+
+	bool deleteEntitiy = false;
+	float entity_posx;
+	float entity_posy;
+	bool stationary;
 	sf::Image &enemyimage;
-	static constexpr int health = 100;
+	int health;
+
+	void MoveEntity(Player& p)		//moves the entity
+	{
+		auto playerparams = p.GetPlayerParams();
+		if (!stationary) {
+			entity_posx += cosf(playerparams.ViewDirection)*2.0f;
+			entity_posy += sinf(playerparams.ViewDirection)*2.0f;
+		}
+	}
 };
 
-class Enemy
+
+class Entity
 {
 public:
-	Enemy(const class Map& map);
-	void addEnemy(int enemy_posx, int enemy_posy);
-	std::vector<EnemyParams> GetEnemies() const;
+	Entity(const class Map& map);
+	void addEntity(float entity_posx, float entity_posy, bool stationary, const std::string& image, std::optional<int> health = {});
+	std::vector<std::shared_ptr<EntityParams>> GetEntity() const;
+	void MoveEntities(Player& p);
+	void DeleteEntity();
 
 private:
-	std::vector<EnemyParams> Enemies;
+	std::vector<std::shared_ptr<EntityParams>> Entities;		
 	const Map& map;
-	sf::Image enemy;
-
-	
+	std::unordered_set<int> entitypositions;	//keep track of all entitiy positions
+	std::unordered_map<int, std::shared_ptr<EntityParams>> entitymap;
 };

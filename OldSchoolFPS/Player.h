@@ -8,7 +8,6 @@ struct PlayerParams
 	float DistanceToWall;
 };
 
-
 class Player
 {
 public:
