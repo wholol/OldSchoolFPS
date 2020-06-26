@@ -18,7 +18,7 @@ public:
 
 	void main_menu();
 	void update();					//update logic
-	void render();					//rende r
+	void render();					//render screen
 	bool quit();					//quit the window
 
 
@@ -27,7 +27,6 @@ private:
 	bool quitgame = false;			//quit game
 	bool MainMenu = true;
 
-	int FrameCounter = 0;						//frame counter
 	Map map;
 	Player player;
 	Entity entity;

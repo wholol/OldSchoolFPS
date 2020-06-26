@@ -19,7 +19,9 @@ Game::Game(int screenwidth, int screenheight, const std::string& title, int fram
 
 	/*initialize entities here*/
 	entity.addEntity(4, 4 ,true, "enemy.png" , 100 );
-	entity.addEntity(20, 23 ,true, "enemy.png", 100 );
+	entity.addEntity(20, 23 ,true, "enemy.png", 100);
+	entity.addEntity(14, 14, true, "enemy.png", 100);
+	entity.addEntity(14, 24, true, "enemy.png", 100);
 }
 
 void Game::render() {		//rendering
@@ -33,6 +35,7 @@ void Game::main_menu()
 
 void Game::update() {		//update game 
 	std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
 		player.RotateRight();
@@ -61,16 +64,13 @@ void Game::update() {		//update game
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
 		auto playerparams = player.GetPlayerParams();
-		entity.addEntity(playerparams.player_posx , playerparams.player_posy, false, "bullet.png");
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  		entity.addEntity(playerparams.player_posx , playerparams.player_posy, false, "bullet.png");
+		std::this_thread::sleep_for(std::chrono::milliseconds(35));
 		entity.MoveEntities(player);
-		//control bullet velocity.
-		//check for bullet collision
-		//reduce health of enemy.
 	}
 
-	entity.MoveEntities(player);
-	entity.DeleteEntity();
+	entity.MoveEntities(player);//move movable entites (bullet)
+	entity.DeleteEntity();		//delete living entities whos health fall below zero.
 
 	map.UpdateMap(player,entity);
 	window.clear();

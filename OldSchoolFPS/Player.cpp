@@ -28,7 +28,6 @@ void Player::MoveForward()
 		playerparams.player_posy -= sinf(playerparams.ViewDirection)*0.5f;
 		playerparams.player_posx -= cosf(playerparams.ViewDirection)*0.5f;
 	}
-
 }
 
 void Player::MoveBackward()

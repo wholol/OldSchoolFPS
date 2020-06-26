@@ -2,7 +2,6 @@
 #include <SFML\Graphics.hpp>
 #include <vector>
 #include "ImageManager.h"
-#include <unordered_set>
 #include <unordered_map>
 #include <optional>
 #include "Player.h"
@@ -54,6 +53,6 @@ public:
 private:
 	std::vector<std::shared_ptr<EntityParams>> Entities;		
 	const Map& map;
-	std::unordered_set<int> entitypositions;	//keep track of all entitiy positions
-	std::unordered_map<int, std::shared_ptr<EntityParams>> entitymap;
+	std::unordered_multimap<int,int> entitypositions;	//keep track of all stationary entitiy positions
+	std::unordered_map<int, std::shared_ptr<EntityParams>> entitymap; //this map is used to determine which entity has been hit by the moving entities
 };
